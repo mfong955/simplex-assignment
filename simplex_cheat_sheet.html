@@ -1,0 +1,243 @@
+
+<style>
+  .cs-wrap { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1.5rem 0; max-width: 860px; margin: 0 auto; }
+  .cs-title { font-size: 22px; font-weight: 500; margin: 0 0 0.25rem; }
+  .cs-sub { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 2rem; }
+  .cs-section { margin-bottom: 2rem; }
+  .cs-section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .cs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .cs-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.1rem; }
+  .cs-card-title { font-size: 13px; font-weight: 500; margin: 0 0 0.4rem; }
+  .cs-card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin: 0; }
+  .cs-card-body code { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); padding: 1px 4px; border-radius: 3px; color: var(--color-text-primary); }
+  .cs-tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--border-radius-md); margin-bottom: 6px; }
+  .tag-purple { background: #EEEDFE; color: #3C3489; }
+  .tag-teal { background: #E1F5EE; color: #085041; }
+  .tag-coral { background: #FAECE7; color: #712B13; }
+  .tag-blue { background: #E6F1FB; color: #0C447C; }
+  .tag-amber { background: #FAEEDA; color: #633806; }
+  .tag-green { background: #EAF3DE; color: #27500A; }
+  .cs-analogy { background: var(--color-background-secondary); border-left: 3px solid #AFA9EC; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 0.75rem 1rem; margin-top: 8px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .cs-analogy strong { color: var(--color-text-primary); font-weight: 500; }
+  .cs-flow { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .cs-flow-step { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 10px; font-size: 12px; }
+  .cs-flow-arrow { color: var(--color-text-tertiary); font-size: 14px; }
+  .cs-warn { font-size: 12px; color: var(--color-text-tertiary); margin-top: 6px; font-style: italic; }
+  @media (prefers-color-scheme: dark) {
+    .tag-purple { background: #3C3489; color: #CECBF6; }
+    .tag-teal { background: #085041; color: #9FE1CB; }
+    .tag-coral { background: #712B13; color: #F5C4B3; }
+    .tag-blue { background: #0C447C; color: #B5D4F4; }
+    .tag-amber { background: #633806; color: #FAC775; }
+    .tag-green { background: #27500A; color: #C0DD97; }
+    .cs-analogy { border-left-color: #534AB7; }
+  }
+</style>
+
+<div class="cs-wrap">
+  <h1 class="cs-title">Simplex / Transformers Learn Factored Representations</h1>
+  <p class="cs-sub">Personal cheat sheet — concepts, terminology, analogies</p>
+
+  <div class="cs-section">
+    <div class="cs-section-label">Core pipeline — how everything connects</div>
+    <div class="cs-flow">
+      <div class="cs-flow-step">Training data<br><span style="font-size:11px;color:var(--color-text-tertiary)">token sequences</span></div>
+      <div class="cs-flow-arrow">→</div>
+      <div class="cs-flow-step">Transformer<br><span style="font-size:11px;color:var(--color-text-tertiary)">fixed weights after training</span></div>
+      <div class="cs-flow-arrow">→</div>
+      <div class="cs-flow-step">Residual stream<br><span style="font-size:11px;color:var(--color-text-tertiary)">one vector per token position</span></div>
+      <div class="cs-flow-arrow">→</div>
+      <div class="cs-flow-step">Belief state<br><span style="font-size:11px;color:var(--color-text-tertiary)">lives in orthogonal subspaces</span></div>
+      <div class="cs-flow-arrow">→</div>
+      <div class="cs-flow-step">Next token prediction</div>
+    </div>
+    <p class="cs-warn">Weights = static after training (the pinball machine). Residual stream = dynamic per input (the ball).</p>
+  </div>
+
+  <div class="cs-section">
+    <div class="cs-section-label">Key terms — things I was confused about</div>
+    <div class="cs-grid">
+
+      <div class="cs-card">
+        <div class="cs-tag tag-purple">Residual stream</div>
+        <p class="cs-card-title">The running state vector</p>
+        <p class="cs-card-body">A single high-dimensional vector (e.g. 120D) that gets updated by each transformer layer. Each layer <em>adds</em> its contribution rather than replacing. One vector exists per token position in a sequence.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> a quantum state vector that operators act on layer by layer.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-purple">Belief state</div>
+        <p class="cs-card-title">The model's current probability distribution</p>
+        <p class="cs-card-body">The posterior P(hidden state | all past tokens). This is <em>encoded in</em> the residual stream vector — not stored in the weights. Updated with every new token via Bayesian-like updating.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> a detective's running mental model of the most likely suspect, updated with each new clue.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-teal">Hidden states</div>
+        <p class="cs-card-title">The unobservable internal states</p>
+        <p class="cs-card-body">The discrete states of the process generating the tokens. You never observe them — only the emitted tokens. For Mess3, there are 3 hidden states {A, B, C}. The model infers their probability from token history.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> a vending machine secretly switching between "generous" and "stingy" modes — you only see what comes out.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-teal">Factors</div>
+        <p class="cs-card-title">Independent sub-processes running in parallel</p>
+        <p class="cs-card-body">Multiple processes generating tokens simultaneously. Their outputs are combined into one token — the model never sees them separately. Paper uses 5 factors. Each gets its own orthogonal subspace in the residual stream.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> two independent vending machines whose outputs are mixed together before you see them.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-coral">Simplex</div>
+        <p class="cs-card-title">The shape belief states live in</p>
+        <p class="cs-card-body">A probability distribution over N states must be non-negative and sum to 1. This constraint forces belief states to live on an (N−1)-simplex: line segment for 2 states, triangle for 3, tetrahedron for 4.</p>
+        <div class="cs-analogy"><strong>Company name:</strong> named directly after this geometric object — their entire program is built on it.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-coral">Latent structure</div>
+        <p class="cs-card-title">The hidden organization generating the data</p>
+        <p class="cs-card-body">The underlying factored processes that produce tokens. Never directly observable. Tracking it correctly is required for optimal prediction. If residual stream geometry matches predicted simplices, the model is tracking it.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> a novel's plot and character motivations — never written explicitly, but generates every word.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-blue">Orthogonal subspaces</div>
+        <p class="cs-card-title">Separate "rooms" in the residual stream</p>
+        <p class="cs-card-body">The transformer dedicates a separate set of dimensions to each factor. These sets are orthogonal — at 90° to each other — so changing one doesn't disturb another. This enables surgical interventions.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> x, y, z axes — moving along x doesn't affect y or z coordinates at all.</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-blue">Factored vs. joint representation</div>
+        <p class="cs-card-title">Linear vs. exponential dimensions</p>
+        <p class="cs-card-body"><strong>Joint:</strong> tracks all factor combinations. Dimensions = product (3⁵=243). Always lossless.<br><strong>Factored:</strong> tracks each factor separately. Dimensions = sum (5×2=10). Lossless only when factors are conditionally independent.</p>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-amber">Weights vs. activations</div>
+        <p class="cs-card-title">Fixed machinery vs. dynamic values</p>
+        <p class="cs-card-body"><strong>Weights/parameters:</strong> learned during training, frozen forever. Encode the algorithm.<br><strong>Activations (residual stream):</strong> computed fresh per input. Encode the current belief state. The paper studies activations, not weights.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> pinball machine bumpers (weights) vs. the ball's position (activations).</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-amber">Conditional independence</div>
+        <p class="cs-card-title">The condition for lossless factoring</p>
+        <p class="cs-card-body">Two factors are conditionally independent given a token if observing the token lets you update each factor's belief separately without losing information. When this holds, the factored representation is exactly as good as the joint one.</p>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-green">PCA / CEV</div>
+        <p class="cs-card-title">How they measure dimensionality</p>
+        <p class="cs-card-body">Run model on 1000s of inputs → collect residual stream vectors → find directions of most variance (principal components). CEV(k) = fraction of variance in top k directions. If CEV(10)≈0.95, activations are effectively 10-dimensional.</p>
+        <div class="cs-analogy"><strong>Key test:</strong> does the model use 10 dims (factored prediction) or 242 dims (joint prediction)?</div>
+      </div>
+
+      <div class="cs-card">
+        <div class="cs-tag tag-green">Inductive bias</div>
+        <p class="cs-card-title">Preference baked into the architecture</p>
+        <p class="cs-card-body">Transformers find factored representations early in training and stay there — even when a higher-dimensional solution would predict better. The factored solution is a wide, easy-to-find basin in the loss landscape. A gift for interpretability.</p>
+        <div class="cs-analogy"><strong>Analogy:</strong> water supercooling — stuck in liquid state (factored) even though ice (joint) is lower energy.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <div class="cs-section-label">The Mess3 process — what it is and why it's used</div>
+    <div class="cs-grid">
+      <div class="cs-card">
+        <p class="cs-card-title">Structure</p>
+        <p class="cs-card-body">3 hidden states {A, B, C}. Emits tokens from {0, 1, 2}. Defined by parameters α and x. Non-Markovian — predicting well requires tracking full belief state, not just last token.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Why a triangle?</p>
+        <p class="cs-card-body">Belief state = (pA, pB, pC) with pA+pB+pC=1. Three non-negative numbers summing to 1 form a triangle (2-simplex). Two numbers determine the third. So belief state varies in exactly 2 dimensions.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Why use it?</p>
+        <p class="cs-card-body">Ground truth is analytically computable. Researchers can calculate exactly what belief state the model should have, then check whether the residual stream matches. Complex enough (fractal geometry) to be a real test.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <div class="cs-section-label">Gradient descent and loss landscape</div>
+    <div class="cs-card" style="max-width:100%">
+      <p class="cs-card-body">
+        The loss landscape is a surface over all possible weight configurations — height = prediction error. Gradient descent feels the local slope and steps downhill. It always moves toward lower error but can get stuck in local minima.<br><br>
+        <strong style="font-weight:500">The factored basin:</strong> wide, shallow, easy to fall into early. Gradient descent finds it within hundreds of steps.<br>
+        <strong style="font-weight:500">The joint basin:</strong> potentially deeper (lower loss), but narrow and hard to reach. Requires sustained gradient pressure over thousands more steps.<br><br>
+        Not like MCMC: gradient descent is deterministic and greedy (always downhill). MCMC is random and exploratory (can escape local traps). Gradient descent gets stuck; MCMC wanders.
+      </p>
+      <div class="cs-analogy"><strong>Analogy:</strong> blindfolded on a hilly landscape — you feel the slope and step downhill. You'll find a valley, but not necessarily the deepest one.</div>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <div class="cs-section-label">Why this matters — the big picture</div>
+    <div class="cs-grid">
+      <div class="cs-card">
+        <p class="cs-card-title">Interpretability</p>
+        <p class="cs-card-body">If factors live in orthogonal subspaces, we can identify which subspace encodes which aspect of the world. We can then "read out" the model's current belief about specific things — e.g. what topic it thinks it's discussing.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Surgical intervention</p>
+        <p class="cs-card-body">Orthogonal subspaces mean you can modify one factor without disturbing others. Like editing one variable in a program. This enables targeted control of model behavior — a major safety research goal.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Verification</p>
+        <p class="cs-card-body">If the residual stream geometry matches predicted simplices, the model is genuinely tracking the latent structure of its training data — doing something close to optimal Bayesian inference. If it doesn't match, the model is doing something else we don't yet understand.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Open frontier</p>
+        <p class="cs-card-body">This paper proves the decomposition exists in small synthetic models. Applying it to large LLMs (where the ground truth isn't known) requires unsupervised discovery methods — exactly what Simplex is building next.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <div class="cs-section-label">Physics analogies — the ones that helped</div>
+    <div class="cs-grid">
+      <div class="cs-card">
+        <div class="cs-tag tag-purple">Spectroscopy</div>
+        <p class="cs-card-body">You see a combined absorption spectrum (tokens). The model discovers it's a superposition of two atomic species (factors). It separates them into orthogonal frequency channels (subspaces) without being told they exist.</p>
+      </div>
+      <div class="cs-card">
+        <div class="cs-tag tag-teal">Seismology</div>
+        <p class="cs-card-body">One seismometer records earthquake + traffic + ocean waves combined. The model learns to separate the three independent sources into orthogonal channels purely from the statistical structure of the combined signal.</p>
+      </div>
+      <div class="cs-card">
+        <div class="cs-tag tag-coral">Supercooling</div>
+        <p class="cs-card-body">Water below 0°C stays liquid (factored representation) even though ice (joint representation) is lower energy. Needs a push to escape. The factored basin is the metastable state; more training = more pressure to escape toward joint.</p>
+      </div>
+      <div class="cs-card">
+        <div class="cs-tag tag-blue">Bayesian detective</div>
+        <p class="cs-card-body">After each new clue (token), the detective updates their distribution over suspects (hidden states). The current belief = posterior over all evidence so far. It's a sufficient statistic — all useful past information is compressed into it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <div class="cs-section-label">The assignment in one sentence per task</div>
+    <div class="cs-grid">
+      <div class="cs-card">
+        <p class="cs-card-title">Task 1 — non-ergodic dataset</p>
+        <p class="cs-card-body">Build training data from multiple Mess3 processes where each sequence comes from only one process. Models language's multi-source reality (legal docs vs. poems). Train a transformer on it.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Task 2 — pre-registered prediction</p>
+        <p class="cs-card-body">Before running the experiment, mathematically derive what geometry you expect to see in the residual stream. At short context: mixed/uncertain. At long context: collapsed to one process's simplex.</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Task 3 — analyze geometry</p>
+        <p class="cs-card-body">After training, run PCA on residual streams. Does dimensionality match factored prediction? Do the geometric shapes match the predicted Mess3 simplices? Does context length affect disambiguation?</p>
+      </div>
+      <div class="cs-card">
+        <p class="cs-card-title">Task 4 — additional analysis</p>
+        <p class="cs-card-body">Your choice. Strong options: how does geometry evolve layer by layer? How does it change as context grows? Is the model's uncertainty over which process is active geometrically encoded?</p>
+      </div>
+    </div>
+  </div>
+
+</div>
