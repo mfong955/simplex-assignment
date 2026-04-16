@@ -63,7 +63,7 @@ for k, source in enumerate(SOURCES):
     per_source_initial_states.append(s)
 
 per_source_initial_states = jnp.stack(per_source_initial_states)   # (K, 9)
-print("Per-source initial states (each row sums to 1/3 of total):")
+print("Per-source initial states (each row is a valid prob dist over 9 states, summing to 1):")
 print(np.array(per_source_initial_states))
 
 
