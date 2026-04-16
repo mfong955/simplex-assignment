@@ -1,0 +1,152 @@
+
+<style>
+  .cs { font-family: var(--font-sans); color: var(--color-text-primary); padding: 1.5rem 0; max-width: 860px; margin: 0 auto; }
+  .cs h1 { font-size: 22px; font-weight: 500; margin: 0 0 0.2rem; }
+  .cs .sub { font-size: 14px; color: var(--color-text-tertiary); margin: 0 0 2rem; }
+  .cs .sec-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-tertiary); margin: 0 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .cs .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-bottom: 2rem; }
+  .cs .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.1rem; }
+  .cs .card-title { font-size: 13px; font-weight: 500; margin: 0 0 0.4rem; }
+  .cs .card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.65; margin: 0; }
+  .cs .tag { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: var(--border-radius-md); margin-bottom: 6px; }
+  .cs .t-purple { background: #EEEDFE; color: #3C3489; }
+  .cs .t-teal { background: #E1F5EE; color: #085041; }
+  .cs .t-coral { background: #FAECE7; color: #712B13; }
+  .cs .t-blue { background: #E6F1FB; color: #0C447C; }
+  .cs .t-amber { background: #FAEEDA; color: #633806; }
+  .cs .t-green { background: #EAF3DE; color: #27500A; }
+  .cs .note { background: var(--color-background-secondary); border-left: 3px solid #AFA9EC; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 0.7rem 1rem; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-top: 8px; }
+  .cs .note strong { color: var(--color-text-primary); font-weight: 500; }
+  .cs .flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0; margin: 8px 0 0; }
+  .cs .fstep { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 10px; font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; flex: 1; min-width: 80px; }
+  .cs .farr { display: flex; align-items: center; padding: 0 4px; font-size: 14px; color: var(--color-text-tertiary); }
+  .cs .mono { font-family: var(--font-mono); font-size: 12px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 3px; color: var(--color-text-primary); }
+  .cs table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  .cs td { padding: 5px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); vertical-align: top; }
+  .cs td:first-child { font-weight: 500; color: var(--color-text-primary); white-space: nowrap; }
+  @media (prefers-color-scheme: dark) {
+    .cs .t-purple { background: #3C3489; color: #CECBF6; }
+    .cs .t-teal { background: #085041; color: #9FE1CB; }
+    .cs .t-coral { background: #712B13; color: #F5C4B3; }
+    .cs .t-blue { background: #0C447C; color: #B5D4F4; }
+    .cs .t-amber { background: #633806; color: #FAC775; }
+    .cs .t-green { background: #27500A; color: #C0DD97; }
+    .cs .note { border-left-color: #534AB7; }
+  }
+</style>
+
+<div class="cs">
+  <h1>Transformer mechanics — how it actually works</h1>
+  <p class="sub">Cheat sheet covering parallel processing, residual streams, attention, activations, and PCA analysis</p>
+
+  <div class="sec-label">Core concepts — things I was confused about</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="tag t-purple">Parallel but not independent</div>
+      <p class="card-title">All tokens processed at once — but with different information</p>
+      <p class="card-body">All 16 tokens enter the transformer simultaneously in one forward pass. But causal masking enforces an information asymmetry: position 7 can only attend to positions 0–7, while position 15 can attend to all 16. So even though computation is parallel, each position has different available context.</p>
+      <div class="note"><strong>Analogy:</strong> 16 people working at the same time, but person 7 can only read notes from people 0–7. They finish simultaneously but with different amounts of information.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-purple">Final position</div>
+      <p class="card-title">The last token in the sequence — not the last layer</p>
+      <p class="card-body">"Final position" means token position 15 (in a 16-token sequence) — the position that has seen all prior tokens via attention. It has the most context and produces the most information-rich residual stream vector. This is why PCA plots labeled "final position" use these vectors.</p>
+      <div class="note"><strong>Not to be confused with</strong> final layer. You can analyze any combination of (layer, position). The paper often fixes the final layer and varies something else (position, training step).</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-teal">Residual stream</div>
+      <p class="card-title">One vector per position that accumulates across layers</p>
+      <p class="card-body">Each token position has a single 128D vector that travels vertically through the network. Each layer <em>adds</em> its output to this vector rather than replacing it. The residual stream at any point = embedding + all layer contributions so far.</p>
+      <div class="note"><strong>Analogy:</strong> a whiteboard each layer writes on without erasing. The final residual stream is the whiteboard after all layers have written.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-teal">Activations</div>
+      <p class="card-title">Any internal values during a forward pass</p>
+      <p class="card-body">Broad term for all intermediate numerical values inside the network. The residual stream is the most important activation — it's the running state vector. Other activations (attention head outputs, MLP outputs) are intermediate computations that feed into the residual stream but are not the stream itself.</p>
+      <div class="note"><strong>In this paper:</strong> "activations" and "residual stream" are used nearly interchangeably — both refer to the residual stream vector at the final layer.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-coral">Attention — what "communication" actually means</div>
+      <p class="card-title">Content-dependent, weighted information routing</p>
+      <p class="card-body">Not simple addition. Each position computes three things from its current vector via learned matrices:</p>
+      <table>
+        <tr><td>Query (Q)</td><td>"What am I looking for?"</td></tr>
+        <tr><td>Key (K)</td><td>"What do I contain?"</td></tr>
+        <tr><td>Value (V)</td><td>"What do I actually send?"</td></tr>
+      </table>
+      <p class="card-body" style="margin-top:8px;">Q·K dot products → softmax weights → weighted sum of V vectors → added to residual stream. The weights are input-dependent and learned — different inputs produce different attention patterns.</p>
+    </div>
+
+    <div class="card">
+      <div class="tag t-coral">Why attention is not simple addition</div>
+      <p class="card-title">Three key differences from just summing vectors</p>
+      <p class="card-body">1. Weights are learned and content-dependent — relevant positions get higher weight.<br><br>2. Weights vary by input — the same position attends differently to different sequences.<br><br>3. Values are transformed — Wv transforms each position's vector before it's blended in. The model learns what to broadcast, not just that it broadcasts.</p>
+      <div class="note"><strong>Analogy:</strong> a meeting where you assess each person's relevance to your question, weight their contribution accordingly, and each person only shares the part of their knowledge that's relevant.</div>
+    </div>
+
+  </div>
+
+  <div class="sec-label">Geometry and analysis — PCA, plots, and what they show</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="tag t-blue">What each dot in the PCA plot represents</div>
+      <p class="card-title">One dot = one sequence's final residual stream vector</p>
+      <p class="card-body">500 test sequences × position 15 = 500 residual stream vectors, each 128D. PCA compresses 128D → 3D for visualization. Each dot is one sequence. Its position = where that sequence's belief state ended up in compressed space. Color = which Mess3 source generated it.</p>
+      <div class="note"><strong>How many points:</strong> 500 (one per test sequence, using final position only). If all 16 positions were plotted: 500 × 16 = 8000 points.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-blue">PCA — what it does and why 3D</div>
+      <p class="card-title">Finds directions of most variance for visualization</p>
+      <p class="card-body">You have 500 points in 128D space — unplottable. PCA finds the 2 or 3 directions where the cloud is most spread out and projects every point onto those directions. PC1 captures the most variance (83.8%), PC2 the next most (7.0%), PC3 next (5.9%).</p>
+      <div class="note"><strong>Why 3D vs 2D:</strong> purely a visualization choice. PC1 separates Source 0; PC2+PC3 reveal within-cluster structure. 3D shows more. The effective rank calculation uses all 128 dimensions regardless.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-amber">Effective rank and CEV</div>
+      <p class="card-title">How many dimensions the model actually uses</p>
+      <p class="card-body">Cumulative Explained Variance (CEV) at k = fraction of total variance in top k PCs. Effective rank = minimum k such that CEV(k) ≥ 95%. In your experiment: CEV(2) ≈ 96.7%, so effective rank = 3 (due to 0-indexing — you need PC1+PC2+PC3 to cross 95%).</p>
+      <div class="note"><strong>Key test:</strong> does the model use 10 dims (factored, 5 factors × 2D each) or 242 dims (joint, 3⁵-1)? For your non-ergodic setup the predicted range was 2–8.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-amber">Layer vs. position analysis</div>
+      <p class="card-title">Two independent axes for studying residual streams</p>
+      <p class="card-body">You can study activations at any (layer, position) combination. Fixing the final layer and varying position shows how belief state geometry evolves as context accumulates — that's Figure 2 (effective rank by token position). Fixing a position and varying layer shows how representations develop through the network depth.</p>
+    </div>
+
+    <div class="card">
+      <div class="tag t-green">Effective rank trajectory — what 1→4→3 means</div>
+      <p class="card-title">The model expands then contracts its representational space</p>
+      <p class="card-body">Position 0 (BOS): rank 1 — all sequences identical, no variance. Positions 1–7: rank rises to 4 — active source disambiguation phase, model building up a representation to distinguish sources. Positions 8–15: rank drops to 3 — source identity resolved, model collapses onto identified source's belief simplex.</p>
+      <div class="note"><strong>Intuition:</strong> the model uses extra dimensions while actively inferring, then discards them once inference converges. The rise then fall was not predicted — original prediction was monotonic decrease from 8 to 2.</div>
+    </div>
+
+    <div class="card">
+      <div class="tag t-green">Linear decodability (R²)</div>
+      <p class="card-title">Can you read out belief states from the residual stream?</p>
+      <p class="card-body">Linear regression from 128D residual stream → ground-truth belief states. High R² means the belief state is linearly encoded and readable. Results: hidden state beliefs R² = 0.83–0.97 (very high). Source weight R² = 0.37 (low — not because absent, but encoded categorically not continuously).</p>
+      <div class="note"><strong>Why the asymmetry:</strong> hidden state directly determines next token → strong gradient pressure to encode linearly. Source identity is higher-level and influences predictions only indirectly.</div>
+    </div>
+
+  </div>
+
+  <div class="sec-label">The transformer forward pass — step by step</div>
+  <div class="card" style="margin-bottom: 2rem;">
+    <p class="card-title">What happens when sequence [0, 1, 2, 3, 4] enters the transformer</p>
+    <div class="flow" style="flex-direction: column; gap: 6px; margin-top: 8px;">
+      <div class="fstep"><strong style="font-weight:500">Step 1 — Embedding</strong><br>Each integer looked up in embedding table → 5 × 128D starting vectors. Each position knows only its own token.</div>
+      <div class="fstep"><strong style="font-weight:500">Step 2 — Attention (layer 0)</strong><br>All positions compute Q, K, V from their current vectors. Causal masking applied. Each position takes weighted sum of allowed positions' V vectors. Result added to residual stream.</div>
+      <div class="fstep"><strong style="font-weight:500">Step 3 — MLP (layer 0)</strong><br>Each position's updated vector passes through feedforward network independently. Result added to residual stream.</div>
+      <div class="fstep"><strong style="font-weight:500">Step 4 — Repeat for layer 1</strong><br>Same attention + MLP, now with richer residual stream vectors. Position 4 now has information from all prior positions through two rounds of attention.</div>
+      <div class="fstep"><strong style="font-weight:500">Output</strong><br>5 × 128D final residual stream vectors — one per position. Position 4's vector has seen everything. Position 0's vector has only ever seen itself.</div>
+    </div>
+  </div>
+
+</div>
