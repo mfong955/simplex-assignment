@@ -153,7 +153,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_steps", type=int, default=5000)
     parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--out", type=str, default="model.pt")
+    parser.add_argument("--out", type=str, default="models/model.pt")
     parser.add_argument("--seed", type=int, default=42)
 
     # parse_known_args ignores unrecognised args (e.g. Jupyter kernel flags)

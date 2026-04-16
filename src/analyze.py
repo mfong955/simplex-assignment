@@ -396,7 +396,7 @@ def analyze_decodability_by_position(acts: np.ndarray, source_ids: np.ndarray,
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
-def run_analysis(model_path: str = "model.pt", out_dir: str = "figures"):
+def run_analysis(model_path: str = "models/model.pt", out_dir: str = "writeup/figures"):
     out = Path(out_dir)
     out.mkdir(exist_ok=True)
 
@@ -438,7 +438,7 @@ def run_analysis(model_path: str = "model.pt", out_dir: str = "figures"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model", type=str, default="model.pt")
-    parser.add_argument("--out_dir", type=str, default="figures")
+    parser.add_argument("--model", type=str, default="models/model.pt")
+    parser.add_argument("--out_dir", type=str, default="writeup/figures")
     args, _ = parser.parse_known_args()
     run_analysis(model_path=args.model, out_dir=args.out_dir)
