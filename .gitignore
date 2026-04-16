@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model artifacts (large binary — include if reviewers should skip retraining)
+# model.pt
+# model.json
