@@ -68,7 +68,7 @@ If the factored world hypothesis extends to real LLMs (which the paper's inducti
 
 ### Other experiments with more time
 
-The most direct extension would be applying CEV analysis to a large pretrained LLM's residual stream with no architectural modifications. Feed the model a large corpus of diverse text passages drawn from distinct domains (legal, scientific, literary, conversational), collect residual stream activations at each token position across all passages, and run PCA. Are the effective dimensionality iconsistent with a factored structure? Do passages from different domains cluster into distinct geometric regions?
+The most direct extension would be applying CEV analysis to a large pretrained LLM's residual stream with no architectural modifications. Feed the model a large corpus of diverse text passages drawn from distinct domains (legal, scientific, literary, conversational), collect residual stream activations at each token position across all passages, and run PCA. Are the effective dimensionality consistent with a factored structure? Do passages from different domains cluster into distinct geometric regions?
 
 A more targeted experiment would adapt the vary-one procedure to natural language using minimal pairs. Carefully construct text pairs that differ in exactly one property while holding everything else fixed. Pairs differing only in grammatical number, tense, or topic while preserving syntactic structure would let you approximately isolate candidate subspaces for specific linguistic factors and then test their pairwise orthogonality using the overlap metric from the paper.
 
