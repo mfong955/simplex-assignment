@@ -1,8 +1,7 @@
 # Simplex Take-Home — Matthew Fong
 
 ## Writeup
-
-The main submission is in [`writeup/WRITEUP.pdf`](writeup/WRITEUP.pdf).  
+ 
 The source markdown is [`writeup/WRITEUP.md`](writeup/WRITEUP.md).  
 All figures referenced in the writeup are in [`writeup/figures/`](writeup/figures/).
 
